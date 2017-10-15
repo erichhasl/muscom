@@ -21,8 +21,15 @@ data Song = Song { songid :: Int
                  , votes :: Int }
             deriving (Show, Eq)
 
+newtype SongData = SongData [Song]
+
 instance Ord Song where
     compare a b = compare (votes a) (votes b)
+
+instance ToJSON SongData where
+    toJSON songs =
+        object [ "action" .= String "receive_updates"
+               , "data" .= toJSON songs ]
 
 instance ToJSON Song where
     toJSON (Song songid title _ votes) =

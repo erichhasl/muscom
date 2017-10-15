@@ -33,7 +33,8 @@ handle dbconn hdl chan addr msg = runMaybeT ( do
 sendSongs :: Connection -> Chan String -> IO ()
 sendSongs dbconn chan = do
     songs <- selectSongs dbconn
-    let msg = BS.unpack $ encode songs
+    let msg = BS.unpack $ encode (SongData songs)
+    putStrLn $ "sending " ++ msg
     broadcast chan msg
 
 broadcast :: Chan String -> String -> IO ()
