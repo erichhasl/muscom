@@ -4,16 +4,18 @@ import System.Process
 import Database.MySQL.Simple
 import Database
 import Audio
+import Control.Concurrent (Chan)
 
-runMusic :: Connection -> IO () -> IO ()
-runMusic conn onReset = do
+runMusic :: Connection -> Chan String -> (String -> IO ()) -> IO ()
+runMusic conn chan onReset = do
     songs <- selectSongs conn
     let bestOne = maximum songs
         fp = "music/" ++ path bestOne
     procHandle <- playAudio fp
     resetVotes conn
     clearUsers conn
-    onReset
+    resetVolume conn chan
+    onReset (title bestOne)
     getLine
     terminateProcess procHandle
-    runMusic conn onReset
+    runMusic conn chan onReset
